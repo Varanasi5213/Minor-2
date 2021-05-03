@@ -170,10 +170,10 @@ class Classifier(Model):
                                               parameters['b' + str(L)], 
                                               activation='sigmoid')
         caches.append(cache)
-        
-        ### END CODE HERE ###
-        
+                
         assert(AL.shape == (1, X.shape[1]))
+        
+        return AL,caches
     def L_model_backward(self,AL, Y, caches):
         grads = {}
         L = len(caches) # the number of layers
@@ -200,26 +200,36 @@ class Classifier(Model):
     def Train(self,X, Y, layers_dims, learning_rate=0.075, num_iterations=500, print_cost=False):
        np.random.seed(1)
        costs = []
+       param=[]
        parameters = Model.initialize_parameters_deep(self,layers_dims)
-       print(parameters,X)
+       #print(parameters,X)
        for i in range(0, num_iterations):
            AL, caches = self.L_model_forward(X, parameters)
            cost = self.cost.compute_cost(AL, Y)
-           self.Loss.append(cost)
-           self.para.append(parameters)
+           
            grads = self.L_model_backward(AL, Y, caches)
            parameters = self.update_parameters(parameters, grads, learning_rate)
-           
+           self.Loss.append(cost)
+           self.para.append(parameters)
+           param.append(parameters)
            if print_cost and i % 100 == 0:
                print ("Cost after iteration %i: %f" % (i, cost))
            if print_cost and i % 100 == 0:
                costs.append(cost)
             
     # plot the cost
-       plt.plot(np.squeeze(costs))
+       plt.plot(np.squeeze(self.Loss))
        plt.ylabel('cost')
        plt.xlabel('iterations (per tens)')
        plt.title("Learning rate =" + str(learning_rate))
        plt.show()
-    
+
        return parameters
+
+def predict(X, parameters,model):
+
+    AL,caches = model.L_model_forward(X, parameters)
+    print(AL)
+    predictions = AL > 0.5
+
+    return predictions
